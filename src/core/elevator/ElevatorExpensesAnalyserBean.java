@@ -43,18 +43,31 @@ public class ElevatorExpensesAnalyserBean implements ElevatorExpensesAnalyser {
         int result =  0;
 
         // завершаем текущее действие
-        result += timeToFinishCurrentAction(elevator);
+        int timeToFinishCurrentAction = timeToFinishCurrentAction(elevator);
+        result += timeToFinishCurrentAction;
 
         // возвращаемся на этаж, откуда нужно забрать пассажиров (если надо)
-        result += timeToReturnFromTheNextFloor(elevator, takePassengersFromFloor);
+        int timeToReturnFromTheNextFloor = timeToReturnFromTheNextFloor(elevator, takePassengersFromFloor);
+        result += timeToReturnFromTheNextFloor;
 
         // время на посадку пассажиров
-        result += fillingExpensesAnalyser.calculateFillingExpenses(
+        int timeToFillTheElevator = fillingExpensesAnalyser.calculateFillingExpenses(
                 elevator.getId(),
                 passengers
         );
+        if (!isActionFinished(elevator)) {
+            timeToFillTheElevator = Math.max(requiresToWait(FILLING), timeToFillTheElevator);
+        } else {
+            timeToFillTheElevator = Math.max(
+                    requiresToWait(FILLING),
+                    elevator.getTimeOnFloor() - requiresToWait(OPENING) + timeToFillTheElevator
+            );
+        }
+        result += timeToFillTheElevator;
 
-        // TODO: учесть открывание-закрывание дверей, тик ожидания при посадке
+        // поправка закрытия дверей и отправления при посадке пассажиров
+        int extraFillingTime = requiresToWait(CLOSING, WAITING);
+        result += extraFillingTime;
 
         // время чтобы довезти пассажиров до целевого этажа
         Passenger[] remainingPassengers = filterRemainingPassengers(

@@ -45,6 +45,9 @@ public final class Constants {
     //Расстояние между точками входа между соседними лифтами
     public static final int DISTANCE_BETWEEN_ELEVATORS = 70;
 
+    //Максимальное число своих пассажиров
+    public static final int MAX_PASSANGERS = 100;
+
     private Constants(){}
 
 }
