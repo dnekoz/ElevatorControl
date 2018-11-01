@@ -7,7 +7,9 @@ import java.util.List;
 
 public class Strategy extends BaseStrategy {
 
+    public static int counter = 0;
     public void onTick(List<Passenger> myPassengers, List<Elevator> myElevators, List<Passenger> enemyPassengers, List<Elevator> enemyElevators) {
+        System.out.println("tick = " + counter++);
 
         for (Elevator e : myElevators) {
             for (Passenger p : myPassengers) {
