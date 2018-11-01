@@ -26,10 +26,23 @@ public class UpDownStrategy extends BaseStrategy {
             // лифт занят
             if (e.getState() != 3) {continue;}
 
+            //если уперлись в границы
+            if (direction.get(e.getId()) > 0 && e.getFloor() == 16) {
+                direction.put(e.getId(), -1);
+                continue;
+            }
+            if (direction.get(e.getId()) < 0 && e.getFloor() == 1) {
+                direction.put(e.getId(), 1);
+                continue;
+            }
+
             // в лифте полно народу и уже долго стоим
             if (e.getPassengers().size() > 15 || e.getTimeOnFloor() > 500) {
                 if (direction.get(e.getId()) > 0) {
                     e.goToFloor(e.getPassengers().stream().mapToInt(t -> t.getDestFloor()).min().orElse(16));
+                    continue;
+                } else {
+                    e.goToFloor(e.getPassengers().stream().mapToInt(t -> t.getDestFloor()).max().orElse(1));
                     continue;
                 }
             }
@@ -43,7 +56,8 @@ public class UpDownStrategy extends BaseStrategy {
                 // если на этаже кто-то еще хочет вверх то забираем
                 List<Passenger> result = myPassengers.stream().filter(t -> t.getState() == 1 && t.getFromFloor() == e.getFloor() && t.getDestFloor() > t.getFromFloor()).collect(Collectors.toList());
                 if (result != null && result.size() > 0) {
-                    result.forEach(t -> t.setElevator(e));
+                    // забираем первого и уезжаем
+                    result.get(0).setElevator(e);
                     continue;
                 }
                 // если есть кого везти вверх, то везем в лифте или выше
@@ -64,7 +78,7 @@ public class UpDownStrategy extends BaseStrategy {
                 // если на этаже кто-то еще хочет вниз то забираем
                 List<Passenger> result = myPassengers.stream().filter(t -> t.getState() == 1 && t.getFromFloor() == e.getFloor() && t.getDestFloor() < t.getFromFloor()).collect(Collectors.toList());
                 if (result != null && result.size() > 0) {
-                    result.forEach(t -> t.setElevator(e));
+                    result.get(0).setElevator(e);
                     continue;
                 }
                 // если естького везти вниз, то везем в лифте или ниже
