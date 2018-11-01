@@ -11,7 +11,7 @@ public class Main {
     public static void main(String args[]) throws IOException, ParseException {
         String host = System.getenv("WORLD_NAME");
         if (host == null) {
-            host = "127.0.0.1";
+            host = "192.168.43.123";
         }
 
         String solutionId = System.getenv("SOLUTION_ID");
