@@ -14,6 +14,7 @@ public class UpDownStrategy extends BaseStrategy {
         // первый вызов!!! Инициализируем нашу мапу
         if (elevatorInfo == null ) {
             elevatorInfo = new HashMap<>();
+            direction = new HashMap<>();
             for (Elevator e : myElevators) {
                 elevatorInfo.putIfAbsent(e.getId(), new TreeSet<>());
                 direction.put(e.getId(), 0);    // ожидаем
