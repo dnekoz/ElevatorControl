@@ -89,7 +89,7 @@ public class ElevatorExpensesAnalyserBean implements ElevatorExpensesAnalyser {
         for (Passenger[] array : passengers) {
             result.addAll(Arrays.asList(array));
         }
-        return (Passenger[]) result.toArray();
+        return result.toArray(new Passenger[0]);
     }
 
     int timeToReturnFromTheNextFloor(Elevator elevator, int toFloor) {
@@ -117,7 +117,7 @@ public class ElevatorExpensesAnalyserBean implements ElevatorExpensesAnalyser {
                 result.add(passenger);
             }
         }
-        return (Passenger[]) result.toArray();
+        return result.toArray(new Passenger[0]);
     }
 
     Passenger[] remainingPassengers(List<Passenger> passengers, int disembarkingFloor) {
@@ -128,6 +128,10 @@ public class ElevatorExpensesAnalyserBean implements ElevatorExpensesAnalyser {
         int result = 0;
         if (isActionFinished(elevator)) {
             return result;
+        }
+        if (elevator.getFloor().equals(elevator.getNextFloor()) &&
+                stateOf(elevator).equals(OPENING)) {
+            return OPENING.getRequiresAtLeastTicks() - elevator.getTimeOnFloor();
         }
         if (!elevator.getFloor().equals(elevator.getNextFloor())) {
             result += movementExpensesAnalyser.calculateMovementTime(
