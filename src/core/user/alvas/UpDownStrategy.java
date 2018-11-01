@@ -24,6 +24,7 @@ public class UpDownStrategy extends BaseStrategy {
         Collections.sort(myElevators,(e1, e2)->e1.getId()-e2.getId() );
         for (Elevator e: myElevators) {
             if (e.getState() != 3) {continue;}
+
             for (Passenger p : myPassengers) {
                 // пропустим все, что нам не по пути
                 int d = p.getDestFloor() > p.getFloor()? 1: -1;
@@ -45,8 +46,12 @@ public class UpDownStrategy extends BaseStrategy {
                 }
                 // если стоим просто так, то едем
                 Passenger passenger = findNearestPassenger(myPassengers, e);
-                if ( passenger != null) { e.goToFloor(passenger.getFloor());  }
+                if ( passenger != null) {
+                    e.goToFloor(passenger.getFloor());
+                    direction.put(e.getId(), p.getFloor() > e.getFloor()? 1: -1);
+                } else {
 
+                }
             }
 
         }
