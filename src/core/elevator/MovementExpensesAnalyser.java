@@ -35,6 +35,9 @@ public class MovementExpensesAnalyser {
             for (Passenger passenger : passengers) {
                 speed /= passenger.getWeight();
             }
+            if (passengers.length > 10) {
+                speed /= 1.1d;
+            }
         }
         return speed;
     }
