@@ -30,6 +30,9 @@ public final class Constants {
     //Минимальное время которое лифт ожидает после открытия дверей
     public static final int ELEVATOR_MIN_FLOOR_WAITING_TIME = 40;
 
+    //Время ожидания лифта после закрытия дверей перед движением
+    public static final int ELEVATOR_WAITING_AFTER_DOORS_CLOSURE_TIME = 1;
+
     //Вместимость лифта
     public static final int ELEVATOR_CAPACITY = 20;
 
