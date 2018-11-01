@@ -12,7 +12,7 @@ public enum PassangerState {
 
     private final int state;
 
-    private PassangerState(int state){
+    PassangerState(int state){
         this.state = state;
     }
 

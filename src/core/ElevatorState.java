@@ -10,7 +10,7 @@ public enum ElevatorState {
 
     private final int state;
 
-    private ElevatorState(int state){
+    ElevatorState(int state){
         this.state = state;
     }
 
