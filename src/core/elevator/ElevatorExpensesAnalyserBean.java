@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static core.ElevatorState.*;
 
@@ -134,10 +135,16 @@ public class ElevatorExpensesAnalyserBean implements ElevatorExpensesAnalyser {
             return OPENING.getRequiresAtLeastTicks() - elevator.getTimeOnFloor();
         }
         if (!elevator.getFloor().equals(elevator.getNextFloor())) {
+            List<Passenger> passengersList = elevator.getPassengers();
+            Passenger[] passengers = new Passenger[passengersList.size()];
+            int cnt = 0;
+            for (Passenger passenger: elevator.getPassengers()) {
+                passengers[cnt++] = passenger;
+            }
             result += movementExpensesAnalyser.calculateMovementTime(
                         elevator.getY(),
                         elevator.getNextFloor(),
-                        (Passenger[]) elevator.getPassengers().toArray()
+                        (Passenger[]) passengers
             );
             result += timeToStartMoving(elevator);
         }
