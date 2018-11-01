@@ -25,7 +25,8 @@ public class SelectStrategy {
 
         String host = System.getenv("WORLD_NAME");
         if (host == null) {
-            host = "192.168.43.123";
+            host = "localhost";
+            //host = "192.168.43.123";
         }
 
         String solutionId = System.getenv("SOLUTION_ID");
