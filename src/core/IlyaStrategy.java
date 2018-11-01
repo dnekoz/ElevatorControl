@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class IlyaStrategy extends Strategy {
+public class IlyaStrategy extends BaseStrategy {
     public void onTick(List<Passenger> myPassengers, List<Elevator> myElevators, List<Passenger> enemyPassengers,
                        List<Elevator> enemyElevators) {
         for (Elevator e : myElevators) {
