@@ -5,111 +5,86 @@ import core.API.Passenger;
 import core.BaseStrategy;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class UpDownStrategy extends BaseStrategy {
-    Map<Integer, TreeSet<Integer>> elevatorInfo; // сейчас null, но при первом вызове его инициализируем. list[0] содержит направление
-    Map<Integer, Integer> direction; // сейчас null, но при первом вызове его инициализируем. 1 вверх, -1 вниз, 0 свободный
+    Map<Integer, Integer> direction;                // сейчас null, но при первом вызове его инициализируем. 1 вверх, -1 вниз, 0 свободный
 
+    private int tick = 0;
     public void onTick(List<Passenger> myPassengers, List<Elevator> myElevators, List<Passenger> enemyPassengers, List<Elevator> enemyElevators) {
-        try {
-            // первый вызов!!! Инициализируем нашу мапу
-            if (elevatorInfo == null ) {
-                elevatorInfo = new HashMap<>();
-                direction = new HashMap<>();
-                for (Elevator e : myElevators) {
-                    elevatorInfo.putIfAbsent(e.getId(), new TreeSet<>());
-                    direction.put(e.getId(), 0);    // ожидаем
-                }
-            }
-
-
-            Collections.sort(myElevators,(e1, e2)->e1.getId()-e2.getId() );
-
-            myElevators.forEach(el-> System.out.print(el.getState() + " "));
-            System.out.println();
-            for (Elevator e: myElevators) {
-                if (e.getState() != 3) {continue;}
-
-                for (Passenger p : myPassengers) {
-                    // пропустим все, что нам не по пути
-                    int d = p.getDestFloor() > p.getFloor()? 1: -1;
-                    // разные напрвления
-                    if (d == 1 && direction.get(e.getId()) == -1) { continue; }
-                    if (d == -1 && direction.get(e.getId()) == 1) { continue; }
-                    //направления одинаковые, но уже проскочили
-                    if (d == 1 && direction.get(e.getId()) == 1 && e.getFloor() > p.getFloor()) {continue;}
-                    if (d == -1 && direction.get(e.getId()) == 1 && e.getFloor() < p.getFloor()) {continue;}
-                    // если ехать больше чем можно тиков, то не поедем
-                    if (getTravelTimeToPassenger(e, p) > p.getTimeToAway()) { continue; }
-                    // если к нам идет пассажир то ждем
-                    if (e.getId() == p.getElevator()) {continue;}
-                    // если на этом этаже, есть место, и полно народу, то приглашаем
-                    if (p.getState() == 1 && (e.getPassengers().size() + myPassengers.stream().filter(t -> t.getElevator() == e.getId()).count() < 20) && e.getFloor() == p.getFloor()) {
-                        elevatorInfo.get(e.getId()).add(p.getDestFloor());
-                        p.setElevator(e);
-                        continue;
-                    }
-                    // если стоим просто так, то едем
-                    Passenger passenger = findNearestPassenger(myPassengers, e);
-                    if ( passenger != null) {
-                        e.goToFloor(passenger.getFloor());
-                        direction.put(e.getId(), p.getFloor() > e.getFloor()? 1: -1);
-                    } else {
-
-                    }
-                }
-
-            }
-        } catch (Throwable throwable) {
-            System.out.println(throwable);
+        if (direction == null) {
+            direction = new HashMap<>();
+            for (Elevator e : myElevators) { direction.put(e.getId(), 1); }
         }
 
+        System.out.println("tick: " + ++tick);
+        myElevators.forEach(t -> System.out.print(t.getState() + " "));
+        System.out.println(" ");
 
-    }
+        for (Elevator e : myElevators) {
 
-    private Passenger findNearestPassenger(List<Passenger> passengers, Elevator elevator) {
-        int min = Integer.MAX_VALUE;
-        Passenger result = null;
-        for (Passenger p: passengers) {
-            if (Math.abs(elevator.getFloor() - p.getFloor()) < min) {
-                min = Math.abs(elevator.getFloor() - p.getFloor());
-                result = p;
-            }
-        }
-        return result;
-    }
+            // лифт занят
+            if (e.getState() != 3) {continue;}
 
-
-    private int getTravelTimeToPassenger(Elevator e, Passenger p){
-        int time = 0;
-        int d = p.getDestFloor() > p.getFloor()? 1: -1;
-        if (e.getFloor() == p.getFloor()) { // мы на одном этаже
-            return 50; // время пока дотопает
-        }
-        if (e.getFloor() > p.getFloor()) {
-            for (int i = p.getFloor(); i <= e.getFloor(); i++) {
-                if(elevatorInfo.get(e.getId()).contains(i)) {
-                    time += 100 + /*среднее время пешком до лифта*/
-                            100 + /*открыть дверь*/
-                            100 + /*закрыть дверь*/
-                            40  /*надо ждать не менее этого времени на каждом этаже*/;
+            // в лифте полно народу и уже долго стоим
+            if (e.getPassengers().size() > 15 || e.getTimeOnFloor() > 500) {
+                if (direction.get(e.getId()) > 0) {
+                    e.goToFloor(e.getPassengers().stream().mapToInt(t -> t.getDestFloor()).min().orElse(16));
                     continue;
                 }
-                time += 50;
             }
-        } else {
-            for (int i = e.getFloor(); i <= p.getFloor() ; i++) {
-                if(elevatorInfo.get(e.getId()).contains(i)) {
-                    time += 100 + /*среднее время пешком до лифта*/
-                            100 + /*открыть дверь*/
-                            100 + /*закрыть дверь*/
-                            40  /*надо ждать не менее этого времени на каждом этаже*/;
+
+            // к лифту кто-то идет то ждем
+            if (myPassengers.stream().filter(t -> (t.getState() == 2) && (t.getElevator() == e.getId())).count() != 0) { continue; }
+
+
+            // если лифт двигается вверх
+            if (direction.get(e.getId()) > 1) {
+                // если на этаже кто-то еще хочет вверх то забираем
+                List<Passenger> result = myPassengers.stream().filter(t -> t.getState() == 1 && t.getFromFloor() == e.getFloor() && t.getDestFloor() > t.getFromFloor()).collect(Collectors.toList());
+                if (result != null && result.size() > 0) {
+                    result.forEach(t -> t.setElevator(e));
                     continue;
                 }
-                time += (int)(1/e.getSpeed());
+                // если есть кого везти вверх, то везем в лифте или выше
+                result = myPassengers.stream().filter(t -> t.getState() == 1 && t.getFromFloor() > e.getFloor() && t.getDestFloor() > t.getFromFloor()).collect(Collectors.toList());
+                int otherMin = result.stream().mapToInt(t -> t.getFromFloor()).min().orElse(17);
+                int myMin = e.getPassengers().stream().mapToInt(t -> t.getDestFloor()).min().orElse(17);
+                int min = Math.min(otherMin, myMin);
+                if (min > 16) {
+                    result = myPassengers.stream().filter(t -> t.getState() == 1 && t.getFromFloor() > e.getFloor() && t.getDestFloor() < t.getFromFloor()).collect(Collectors.toList());
+                    if (result != null && result.size() > 0) {
+                        e.goToFloor(result.stream().mapToInt(t -> t.getFromFloor()).max().orElse(16));
+                    }
+                    direction.put(e.getId(), -1);
+                    continue;
+                }
+                e.goToFloor(min);
+            } else {
+                // если на этаже кто-то еще хочет вниз то забираем
+                List<Passenger> result = myPassengers.stream().filter(t -> t.getState() == 1 && t.getFromFloor() == e.getFloor() && t.getDestFloor() < t.getFromFloor()).collect(Collectors.toList());
+                if (result != null && result.size() > 0) {
+                    result.forEach(t -> t.setElevator(e));
+                    continue;
+                }
+                // если естького везти вниз, то везем в лифте или ниже
+                result = myPassengers.stream().filter(t -> t.getState() == 1 && t.getFromFloor() < e.getFloor() && t.getDestFloor() < t.getFromFloor()).collect(Collectors.toList());
+                int otherMax = result.stream().mapToInt(t -> t.getFromFloor()).max().orElse(0);
+                int myMax = e.getPassengers().stream().mapToInt(t -> t.getDestFloor()).max().orElse(0);
+                int max = Math.max(otherMax, myMax);
+                if (max < 1) {
+                    result = myPassengers.stream().filter(t -> t.getState() == 1 && t.getFromFloor() < e.getFloor() && t.getDestFloor() > t.getFromFloor()).collect(Collectors.toList());
+                    if (result != null && result.size() > 0) {
+                        e.goToFloor(result.stream().mapToInt(t -> t.getFromFloor()).min().orElse(16));
+                    }
+                    direction.put(e.getId(), 1);
+                    continue;
+                }
+                e.goToFloor(max);
             }
+
         }
-        return time;
+
     }
 
 }
