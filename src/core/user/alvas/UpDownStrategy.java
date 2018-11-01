@@ -27,39 +27,39 @@ public class UpDownStrategy extends BaseStrategy {
             if (e.getState() != 3) {continue;}
 
             // список кто на этаже ждет лифт и кому надо вверх
-            List<Passenger> currentFloorPassengerToUp = myPassengers.stream()
+            Set<Passenger> currentFloorPassengerToUp = myPassengers.stream()
                     .filter(t->t.getState() < 5 &&
                             t.getFloor() == e.getFloor() &&
-                            t.getDestFloor() > t.getFromFloor()).collect(Collectors.toList());
+                            t.getDestFloor() > t.getFromFloor()).collect(Collectors.toSet());
             // список кто на этаже ждет лифт и кому надо вниз
-            List<Passenger> currentFloorPassengerToDown = myPassengers.stream()
+            Set<Passenger> currentFloorPassengerToDown = myPassengers.stream()
                     .filter(t->t.getState() < 5 &&
                             t.getFloor() == e.getFloor() &&
-                            t.getDestFloor() < t.getFromFloor()).collect(Collectors.toList());
+                            t.getDestFloor() < t.getFromFloor()).collect(Collectors.toSet());
             // список уже идет к нам
-            List<Passenger> currentFloorPassengerArrive = myPassengers.stream()
+            Set<Passenger> currentFloorPassengerArrive = myPassengers.stream()
                     .filter(t->t.hasElevator() &&
-                            t.getFloor() == e.getFloor()).collect(Collectors.toList());
+                            t.getFloor() == e.getFloor()).collect(Collectors.toSet());
             // список вверхних кто хочет наверх
-            List<Passenger> upFloorPassengerToUp = myPassengers.stream()
+            Set<Passenger> upFloorPassengerToUp = myPassengers.stream()
                     .filter(t->t.getState() < 5 &&
                             t.getFloor() > e.getFloor() &&
-                            t.getDestFloor() > t.getFromFloor()).collect(Collectors.toList());
+                            t.getDestFloor() > t.getFromFloor()).collect(Collectors.toSet());
             // список вверхних кто хочет вниз
-            List<Passenger> upFloorPassengerToDown = myPassengers.stream()
+            Set<Passenger> upFloorPassengerToDown = myPassengers.stream()
                     .filter(t->t.getState() < 5 &&
                             t.getFloor() > e.getFloor() &&
-                            t.getDestFloor() < t.getFromFloor()).collect(Collectors.toList());
+                            t.getDestFloor() < t.getFromFloor()).collect(Collectors.toSet());
             // список нижних кто хочет наверх
-            List<Passenger> downFloorPassengerToUp = myPassengers.stream()
+            Set<Passenger> downFloorPassengerToUp = myPassengers.stream()
                     .filter(t->t.getState() < 5 &&
                             t.getFloor() < e.getFloor() &&
-                            t.getDestFloor() > t.getFromFloor()).collect(Collectors.toList());
+                            t.getDestFloor() > t.getFromFloor()).collect(Collectors.toSet());
             // список нижних кто хочет вниз
-            List<Passenger> downFloorPassengerToDown = myPassengers.stream()
+            Set<Passenger> downFloorPassengerToDown = myPassengers.stream()
                     .filter(t->t.getState() < 5 &&
                             t.getFloor() < e.getFloor() &&
-                            t.getDestFloor() < t.getFromFloor()).collect(Collectors.toList());
+                            t.getDestFloor() < t.getFromFloor()).collect(Collectors.toSet());
 
 
             // если едем вверх и есть еще люди
