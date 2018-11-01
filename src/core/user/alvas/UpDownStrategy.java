@@ -20,6 +20,7 @@ public class UpDownStrategy extends BaseStrategy {
             }
         }
 
+
         Collections.sort(myElevators,(e1, e2)->e1.getId()-e2.getId() );
         for (Elevator e: myElevators) {
             if (e.getState() != 3) {continue;}
