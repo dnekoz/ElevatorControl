@@ -71,42 +71,58 @@ public class UpDownStrategy extends BaseStrategy {
                     continue;
                 }
 
+
+
                 // кто-то еще ждет лифт наверх, то забираем
                 if (currentFloorPassengerToUp != null && currentFloorPassengerToUp.size() > 0) {
                     currentFloorPassengerToUp.stream().findFirst().get().setElevator(e);
                     continue;
                     // едем на этаж ближайший сверху
-                } else if (upFloorPassengerToUp != null && upFloorPassengerToUp.size() > 0) {
+                }
+
+                if (currentFloorPassengerArrive != null && currentFloorPassengerArrive.size() > 0) {
+                    continue;
+                }
+
+                if (upFloorPassengerToUp != null && upFloorPassengerToUp.size() > 0) {
                     e.goToFloor(Math.min(upFloorPassengerToUp.stream().mapToInt(t->t.getFromFloor()).min().orElse(16),
                             e.getPassengers().stream().mapToInt(t->t.getDestFloor()).min().orElse(16)));
                     continue;
                     // кому надо наверх - их неосталось. смотрим, надо ли кому вниз
-                } else if (upFloorPassengerToDown != null && upFloorPassengerToDown.size() > 0) {
+                }
+                if (upFloorPassengerToDown != null && upFloorPassengerToDown.size() > 0) {
                     e.goToFloor(upFloorPassengerToDown.stream().mapToInt(t->t.getFromFloor()).max().orElse(16));
                     direction.put(e.getId(), -1);
                     continue;
-                } else {
-                    e.goToFloor(e.getPassengers().stream().mapToInt(t->t.getDestFloor()).min().orElse(16));
-                    continue;
                 }
+                e.goToFloor(e.getPassengers().stream().mapToInt(t->t.getDestFloor()).min().orElse(16));
+                continue;
+
                 // если едем вверх и нет людей в лифте
             } else if (direction.get(e.getId()) > 0 && e.getPassengers().size() == 0) {
                 // кто-то еще ждет лифт наверх, то забираем
                 if (currentFloorPassengerToUp != null && currentFloorPassengerToUp.size() > 0) {
                     currentFloorPassengerToUp.stream().findFirst().get().setElevator(e);
                     continue;
-                } else if (upFloorPassengerToUp != null && upFloorPassengerToUp.size() > 0) {
+                }
+
+                if (currentFloorPassengerArrive != null && currentFloorPassengerArrive.size() > 0) {
+                    continue;
+                }
+
+                if (upFloorPassengerToUp != null && upFloorPassengerToUp.size() > 0) {
                     e.goToFloor(upFloorPassengerToUp.stream().mapToInt(t->t.getFromFloor()).min().orElse(16));
                     continue;
                     // кому надо наверх - их неосталось. смотрим, надо ли кому вниз
-                } else if (upFloorPassengerToDown != null && upFloorPassengerToDown.size() > 0) {
+                }
+                if (upFloorPassengerToDown != null && upFloorPassengerToDown.size() > 0) {
                     e.goToFloor(upFloorPassengerToDown.stream().mapToInt(t->t.getFromFloor()).max().orElse(16));
                     direction.put(e.getId(), -1);
                     continue;
-                } else {
-                    direction.put(e.getId(), -1);
-                    continue;
                 }
+                direction.put(e.getId(), -1);
+                continue;
+
             } else if (direction.get(e.getId()) < 0 && e.getPassengers().size() > 0) {
                 //Если много людей то едем
                 if (e.getPassengers().size() > 20) {
@@ -119,37 +135,50 @@ public class UpDownStrategy extends BaseStrategy {
                     currentFloorPassengerToDown.stream().findFirst().get().setElevator(e);
                     continue;
                     // едем на этаж ближайший снизу
-                } else if (downFloorPassengerToDown != null && downFloorPassengerToDown.size() > 0) {
+                }
+
+                if (currentFloorPassengerArrive != null && currentFloorPassengerArrive.size() > 0) {
+                    continue;
+                }
+
+                if (downFloorPassengerToDown != null && downFloorPassengerToDown.size() > 0) {
                     e.goToFloor(Math.max(downFloorPassengerToDown.stream().mapToInt(t->t.getFromFloor()).max().orElse(1),
                             e.getPassengers().stream().mapToInt(t->t.getDestFloor()).max().orElse(1)));
                     continue;
                     // кому надо вниз - их неосталось. смотрим, надо ли кому вверх
-                } else if (downFloorPassengerToUp != null && downFloorPassengerToUp.size() > 0) {
+                }
+                if (downFloorPassengerToUp != null && downFloorPassengerToUp.size() > 0) {
                     e.goToFloor(downFloorPassengerToUp.stream().mapToInt(t->t.getFromFloor()).min().orElse(1));
                     direction.put(e.getId(), 1);
                     continue;
-                } else {
-                    e.goToFloor(e.getPassengers().stream().mapToInt(t->t.getDestFloor()).max().orElse(1));
-                    continue;
                 }
+                e.goToFloor(e.getPassengers().stream().mapToInt(t->t.getDestFloor()).max().orElse(1));
+                continue;
                 // если едем вверх и нет людей в лифте
             } else if (direction.get(e.getId()) < 0 && e.getPassengers().size() == 0) {
                 // кто-то еще ждет лифт вниз, то забираем
                 if (currentFloorPassengerToDown != null && currentFloorPassengerToDown.size() > 0) {
                     currentFloorPassengerToDown.stream().findFirst().get().setElevator(e);
                     continue;
-                } else if (downFloorPassengerToDown != null && downFloorPassengerToDown.size() > 0) {
+                }
+
+                if (currentFloorPassengerArrive != null && currentFloorPassengerArrive.size() > 0) {
+                    continue;
+                }
+
+                if (downFloorPassengerToDown != null && downFloorPassengerToDown.size() > 0) {
                     e.goToFloor(downFloorPassengerToDown.stream().mapToInt(t->t.getFromFloor()).max().orElse(1));
                     continue;
                     // кому надо вниз - их неосталось. смотрим, надо ли кому вверх
-                } else if (downFloorPassengerToUp != null && downFloorPassengerToUp.size() > 0) {
+                }
+                if (downFloorPassengerToUp != null && downFloorPassengerToUp.size() > 0) {
                     e.goToFloor(downFloorPassengerToUp.stream().mapToInt(t->t.getFromFloor()).min().orElse(1));
                     direction.put(e.getId(), 1);
                     continue;
-                } else {
-                    direction.put(e.getId(), 1);
-                    continue;
                 }
+                direction.put(e.getId(), 1);
+                continue;
+
             }
 
 
