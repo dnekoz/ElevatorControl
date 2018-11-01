@@ -19,4 +19,11 @@ public enum PassangerState {
     public int getInt(){
         return state;
     }
+
+    public static PassangerState getByInt(int stateId){
+        for (PassangerState state: values()){
+            if (state.getInt() == stateId) return state;
+        }
+        return null;
+    }
 }
