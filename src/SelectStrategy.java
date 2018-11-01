@@ -1,5 +1,3 @@
-import core.API.ModifiedAPI;
-import core.Client;
 import core.ModifiedClient;
 import core.Strategy;
 import org.json.simple.parser.ParseException;
@@ -31,7 +29,7 @@ public class SelectStrategy {
 
         String solutionId = System.getenv("SOLUTION_ID");
         if (solutionId == null) {
-            solutionId = "-1";
+            solutionId = "281843336282";
         }
 
         ModifiedClient client = new ModifiedClient(host, 8000, solutionId, strategyClass);

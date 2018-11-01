@@ -33,7 +33,7 @@ public class Strategy4 extends BaseStrategy {
     private static final int HORIZONTAL_SPEED = 2;
     private static final int FIRST_ELEVATOR_POSITION = 60;
     private static final int ELEVATOR_OFFSET = 80;
-    private static final int MAX_TIME = 1200; // not documented?
+    private static final int MAX_TIME = 5200; // not documented?
 
     private final Random random = new Random(123);
 
@@ -87,31 +87,6 @@ public class Strategy4 extends BaseStrategy {
                     List<Passenger> passengersForElevator = new ArrayList<>(passengersAtThisFloor);
 
                     myEleC = elevator.getId()%2;
-                    if(elevator.getFloor() == 1 && tick < 2000) {
-                        // start of the game - take only valuable passengers
-                        passengersForElevator = passengersAtThisFloor.stream()
-                                .filter(passenger -> passenger.getDestFloor() >= 5 ||
-                                        (((elevator.getId() == 7 + 7*myEleC) || elevator.getId() == 8) && passenger.getDestFloor() == 4))
-                                .collect(Collectors.toList());
-                        System.out.println(elevator.getId());
-                        if(elevator.getId() == 1 || elevator.getId() == 2) {
-                            passengersForElevator = passengersAtThisFloor.stream()
-                                    .filter(passenger -> passenger.getDestFloor() >= 8)
-                                    .collect(Collectors.toList());
-                        }
-                        if(elevator.getId() == 3 || elevator.getId() == 4) {
-                            passengersForElevator = passengersAtThisFloor.stream()
-                                    .filter(passenger -> passenger.getDestFloor() >= 7)
-                                    .collect(Collectors.toList());
-                        }
-
-                        if (elevator.getPassengers().stream().filter(passenger -> !passenger.getDestFloor().equals(elevator.getFloor())).count() >= MAX_PASSENGERS) {
-                            chooseNextFloor(elevator, passengersByFloor, elevators);
-                        } else {
-                            assignPassengers(elevator, passengersForElevator);
-                        }
-                        break;
-                    }
 
                     if (elevator.getPassengers().stream().filter(passenger -> !passenger.getDestFloor().equals(elevator.getFloor())).count() >= MAX_PASSENGERS) {
                         chooseNextFloor(elevator, passengersByFloor, elevators);

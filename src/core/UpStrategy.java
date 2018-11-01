@@ -2,6 +2,7 @@ package core;
 
 import core.API.Elevator;
 import core.API.Passenger;
+import org.json.simple.JSONObject;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -14,11 +15,17 @@ public class UpStrategy extends BaseStrategy {
     private int tick = 0;
     private static final Map<Integer, TreeSet<Integer>> channeling = new HashMap<>();
     private PlayerType playerType;
+    private final BaseStrategy strategy = new Strategy();
+    private static final Set<Elevator> freeElevators = new HashSet<>();
 
     public void onTick(List<Passenger> myPassengers, List<Elevator> myElevators, List<Passenger> enemyPassengers, List<Elevator> enemyElevators) {
 
-        try {
+        if (tick > 2100){
+            strategy.onTick(myPassengers, myElevators, enemyPassengers, enemyElevators);
+            return;
+        }
 
+        try {
 
             if (playerType == null) {
                 initChannelling(myElevators);
@@ -28,11 +35,15 @@ public class UpStrategy extends BaseStrategy {
 
             for (Elevator e : myElevators) {
 
+                if (!freeElevators.contains(e) && e.getPassengers().size() == Constants.ELEVATOR_CAPACITY) {
+                    e.goToFloor(channeling.get(e.getId()).first());
+                }
+
                 ElevatorState elevatorState = ElevatorState.getByInt(e.getState());
                 EnumSet<ElevatorState> readyStates = EnumSet.of(FILLING, OPENING);
 
                 // Направляем пассажиров по лифтам с учетом секторов
-                if (e.getFloor().equals(1)) {
+                if (!freeElevators.contains(e) && e.getFloor().equals(1)) {
                     if (readyStates.contains(elevatorState)) {
                         for (Passenger p : myPassengers) {
                             PassangerState passangerState = PassangerState.getByInt(p.getState());
@@ -70,14 +81,55 @@ public class UpStrategy extends BaseStrategy {
                     //Если все вышли, едем на следующий этаж
                     if (exitingInElevator.size() == 0) {
                         Integer nextFloor = getNextFloor(e);
-                        if (!nextFloor.equals(e.getFloor()))
+                        if (!nextFloor.equals(e.getFloor())) {
                             e.goToFloor(nextFloor);
+
+                        } else { //Лифт освободился
+
+                            freeElevators.add(e);
+                            List<Passenger> freePassangers = myPassengers.stream()
+                                    .filter(passenger -> passenger.getState().equals(WAITING_FOR_ELEVATOR.getInt())
+                                            || passenger.getState().equals(RETURNING.getInt()))
+                                    .collect(Collectors.toList());
+                            if (freePassangers.size() > 0 && freeElevators.size() > 0 ) {
+                                //Получаем команды от другой стратегии по свободным лифтам и пассажирам
+                                strategy.onTick(freePassangers, new ArrayList<>(freeElevators), enemyPassengers, enemyElevators);
+
+                                updateElevatorCommand(myElevators);
+                                updatePassangersCommand(myPassengers, freePassangers);
+                            }
+                        }
+
                     }
                 }
             }
         }catch (Exception e){
             System.err.println(e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private void updatePassangersCommand(List<Passenger> myPassangers, List<Passenger> freePassangers){
+        for (Passenger passenger: freePassangers){
+
+            Integer passId = passenger.getId();
+            Passenger myPassanger = getPassangerById(myPassangers, passId);
+            List<JSONObject> messages = myPassanger.getMessages();
+
+            if (messages != null)
+                messages = passenger.getMessages();
+        }
+    }
+
+    private void updateElevatorCommand(List<Elevator> myElevators) {
+        for (Elevator elevator: freeElevators){
+
+            Integer elId = elevator.getId();
+            Elevator myElevator = getElevatorById(myElevators, elId);
+            List<JSONObject> messages = myElevator.getMessages();
+
+            if (messages != null)
+                messages = elevator.getMessages();
         }
     }
 
@@ -128,10 +180,18 @@ public class UpStrategy extends BaseStrategy {
         }
     }
 
-    private Elevator getById(List<Elevator> elevators, Integer id) {
+    private Elevator getElevatorById(List<Elevator> elevators, Integer id) {
         for (Elevator el : elevators) {
             if (el.getId().equals(id))
                 return el;
+        }
+        return null;
+    }
+
+    private Passenger getPassangerById(List<Passenger> passengers, Integer id) {
+        for (Passenger pass : passengers) {
+            if (pass.getId().equals(id))
+                return pass;
         }
         return null;
     }
