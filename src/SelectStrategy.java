@@ -1,3 +1,4 @@
+import core.API.ModifiedAPI;
 import core.Client;
 import core.ModifiedClient;
 import core.Strategy;
@@ -9,12 +10,12 @@ import java.util.Map;
 
 public class SelectStrategy {
     public static void main(String args[]) throws IOException, ParseException {
+
         Map<String, String> argsMap = makeMap(args);
-        String strategyName = "core.Strategy";
         Class strategyClass = Strategy.class;
 
         if (argsMap.containsKey("strategy")){
-            strategyName = argsMap.get("strategy");
+            String strategyName = argsMap.get("strategy");
             try {
                 strategyClass =  Class.forName(strategyName);
             } catch (ClassNotFoundException e) {
@@ -31,6 +32,7 @@ public class SelectStrategy {
         if (solutionId == null) {
             solutionId = "-1";
         }
+
         ModifiedClient client = new ModifiedClient(host, 8000, solutionId, strategyClass);
         client.connect();
     }

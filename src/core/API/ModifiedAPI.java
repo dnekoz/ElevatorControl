@@ -19,20 +19,21 @@ import java.util.stream.Stream;
 
 public class ModifiedAPI {
     private Debug debug;
-
     private BaseStrategy strategy = null;
+
     public ModifiedAPI(Class<BaseStrategy> strategyClass) {
         debug = new Debug();
         try {
-            Constructor<BaseStrategy> constructor = strategyClass.getDeclaredConstructor(HashMap.class);
+            Constructor<BaseStrategy> constructor = strategyClass.getDeclaredConstructor();
             constructor.setAccessible(true);
 
-            this.strategy = constructor.newInstance(new HashMap<String, String>());
+            this.strategy = constructor.newInstance();
             this.strategy.setDebug(debug);
         } catch (Exception e) {
             debug.exception(e);
         }
     }
+
     private Pair<Pair<List<Passenger>, List<Elevator>>, Pair<List<Passenger>, List<Elevator>>> parseState(JSONObject state) {
         List<Passenger> myPassengers = new ArrayList<>();
         List<Elevator> myElevators = new ArrayList<>(3);
