@@ -54,6 +54,8 @@ public class ElevatorExpensesAnalyserBean implements ElevatorExpensesAnalyser {
                 passengers
         );
 
+        // TODO: учесть открывание-закрывание дверей, тик ожидания при посадке
+
         // время чтобы довезти пассажиров до целевого этажа
         Passenger[] remainingPassengers = filterRemainingPassengers(
                 elevator.getPassengers(),
