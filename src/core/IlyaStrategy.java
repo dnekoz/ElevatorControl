@@ -11,7 +11,7 @@ public class IlyaStrategy extends BaseStrategy {
     public void onTick(List<Passenger> myPassengers, List<Elevator> myElevators, List<Passenger> enemyPassengers,
                        List<Elevator> enemyElevators) {
         for (Elevator e : myElevators) {
-            if (e.getState() != 1 && e.getPassengers().size() <= 20) {
+            if (e.getState() != 1) {
                 Passenger passenger = getNearestPassenger(e, myPassengers);
                 if (e.getFloor().equals(passenger.getFromFloor())) {
                     passenger.setElevator(e);
