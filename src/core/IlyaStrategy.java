@@ -7,13 +7,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class IlyaStrategy extends Strategy {
+public class IlyaStrategy extends BaseStrategy {
     public void onTick(List<Passenger> myPassengers, List<Elevator> myElevators, List<Passenger> enemyPassengers,
                        List<Elevator> enemyElevators) {
         for (Elevator e : myElevators) {
             if (e.getState() != 1 && e.getPassengers().size() <= 20) {
                 Passenger passenger = getNearestPassenger(e, myPassengers);
-                if (e.getFloor() == passenger.getFromFloor()) {
+                if (e.getFloor().equals(passenger.getFromFloor())) {
                     passenger.setElevator(e);
                 } else {
                     e.goToFloor(passenger.getFloor());
@@ -22,10 +22,20 @@ public class IlyaStrategy extends Strategy {
             if (e.getPassengers().size() > 0 && e.getState() != 1) {
                 e.goToFloor(getNearestFloor(e, e.getPassengers()
                         .stream()
-                        .map(p -> p.getDestFloor())
+                        .map(Passenger::getDestFloor)
                         .collect(Collectors.toList())));
             }
 
+        }
+        for (Elevator e : myElevators) {
+            if (e.getState() != 1) {
+                Passenger passenger = getNearestPassenger(e, enemyPassengers);
+                if (e.getFloor().equals(passenger.getFromFloor())) {
+                    passenger.setElevator(e);
+                } else {
+                    e.goToFloor(passenger.getFloor());
+                }
+            }
         }
     }
 
