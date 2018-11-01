@@ -27,6 +27,16 @@ public class IlyaStrategy extends Strategy {
             }
 
         }
+        for (Elevator e : myElevators) {
+            if (e.getState() != 1) {
+                Passenger passenger = getNearestPassenger(e, enemyPassengers);
+                if (e.getFloor() == passenger.getFromFloor()) {
+                    passenger.setElevator(e);
+                } else {
+                    e.goToFloor(passenger.getFloor());
+                }
+            }
+        }
     }
 
     private Integer getNearestFloor(Elevator e, List<Integer> destFloors) {
