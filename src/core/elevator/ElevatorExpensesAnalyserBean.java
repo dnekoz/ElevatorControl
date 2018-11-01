@@ -6,7 +6,10 @@ import core.ElevatorExpensesAnalyser;
 import core.ElevatorState;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static core.ElevatorState.*;
 
@@ -45,10 +48,35 @@ public class ElevatorExpensesAnalyserBean implements ElevatorExpensesAnalyser {
         // возвращаемся на этаж, откуда нужно забрать пассажиров (если надо)
         result += timeToReturnFromTheNextFloor(elevator, takePassengersFromFloor);
 
+        // время на посадку пассажиров
+        result += fillingExpensesAnalyser.calculateFillingExpenses(
+                elevator.getId(),
+                passengers
+        );
+
+        // TODO: учесть открывание-закрывание дверей, тик ожидания при посадке
+
         // время чтобы довезти пассажиров до целевого этажа
-        // TODO:
+        Passenger[] remainingPassengers = filterRemainingPassengers(
+                elevator.getPassengers(),
+                elevator.getNextFloor(),
+                takePassengersFromFloor
+        );
+        result += movementExpensesAnalyser.calculateMovementTime(
+                elevator.getY(),
+                deliverPassengersToFloor,
+                merge(remainingPassengers, passengers)
+        );
 
         return result;
+    }
+
+    Passenger[] merge(Passenger[]... passengers) {
+        List<Passenger> result = new ArrayList<>();
+        for (Passenger[] array : passengers) {
+            result.addAll(Arrays.asList(array));
+        }
+        return (Passenger[]) result.toArray();
     }
 
     int timeToReturnFromTheNextFloor(Elevator elevator, int toFloor) {
@@ -65,14 +93,22 @@ public class ElevatorExpensesAnalyserBean implements ElevatorExpensesAnalyser {
             return result;
     }
 
-    Passenger[] remainingPassengers(List<Passenger> passengers, int disembarkingFloor) {
+    Passenger[] filterRemainingPassengers(List<Passenger> passengers, int... disembarkingFloors) {
+        Set<Integer> excludeFloors = new HashSet<>();
+        for (int floor : disembarkingFloors) {
+            excludeFloors.add(floor);
+        }
         List<Passenger> result = new ArrayList<>();
         for (Passenger passenger : passengers) {
-            if (!passenger.getDestFloor().equals(disembarkingFloor)) {
+            if (!excludeFloors.contains(passenger.getDestFloor())) {
                 result.add(passenger);
             }
         }
         return (Passenger[]) result.toArray();
+    }
+
+    Passenger[] remainingPassengers(List<Passenger> passengers, int disembarkingFloor) {
+        return filterRemainingPassengers(passengers, disembarkingFloor);
     }
 
     int timeToFinishCurrentAction(Elevator elevator) {
