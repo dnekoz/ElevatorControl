@@ -23,6 +23,7 @@ public class Strategy extends BaseStrategy {
             if (e.getPassengers().size() > 0 && e.getState() != 1) {
                 e.goToFloor(e.getPassengers().get(0).getDestFloor());
             }
+
         }
     }
 }
