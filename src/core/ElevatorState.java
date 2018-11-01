@@ -8,6 +8,18 @@ public enum ElevatorState {
     FILLING (3, true, Constants.ELEVATOR_MIN_FLOOR_WAITING_TIME),
     CLOSING (4, false, Constants.ELEVATOR_OPEN_CLOSE_TIME);
 
+    private static ElevatorState[] BY_CODE = new ElevatorState[]{
+            WAITING,
+            MOVING,
+            OPENING,
+            FILLING,
+            CLOSING
+    };
+
+    public static ElevatorState fromCode(int code) {
+        return code < BY_CODE.length ? BY_CODE[code] : null;
+    }
+
     private final int state;
     private final boolean canBeInterrupted;
     private final int requiresAtLeastTicks;
