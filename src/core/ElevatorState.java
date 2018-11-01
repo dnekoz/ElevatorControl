@@ -29,4 +29,11 @@ public enum ElevatorState {
     public int getRequiresAtLeastTicks() {
         return requiresAtLeastTicks;
     }
+
+    public static ElevatorState getByInt(int stateId){
+        for (ElevatorState state: values()){
+            if (state.getInt() == stateId) return state;
+        }
+        return null;
+    }
 }
