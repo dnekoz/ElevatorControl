@@ -11,51 +11,60 @@ public class UpDownStrategy extends BaseStrategy {
     Map<Integer, Integer> direction; // сейчас null, но при первом вызове его инициализируем. 1 вверх, -1 вниз, 0 свободный
 
     public void onTick(List<Passenger> myPassengers, List<Elevator> myElevators, List<Passenger> enemyPassengers, List<Elevator> enemyElevators) {
-        // первый вызов!!! Инициализируем нашу мапу
-        if (elevatorInfo == null ) {
-            elevatorInfo = new HashMap<>();
-            direction = new HashMap<>();
-            for (Elevator e : myElevators) {
-                elevatorInfo.putIfAbsent(e.getId(), new TreeSet<>());
-                direction.put(e.getId(), 0);    // ожидаем
-            }
-        }
-
-
-        Collections.sort(myElevators,(e1, e2)->e1.getId()-e2.getId() );
-        for (Elevator e: myElevators) {
-            if (e.getState() != 3) {continue;}
-
-            for (Passenger p : myPassengers) {
-                // пропустим все, что нам не по пути
-                int d = p.getDestFloor() > p.getFloor()? 1: -1;
-                // разные напрвления
-                if (d == 1 && direction.get(e.getId()) == -1) { continue; }
-                if (d == -1 && direction.get(e.getId()) == 1) { continue; }
-                //направления одинаковые, но уже проскочили
-                if (d == 1 && direction.get(e.getId()) == 1 && e.getFloor() > p.getFloor()) {continue;}
-                if (d == -1 && direction.get(e.getId()) == 1 && e.getFloor() < p.getFloor()) {continue;}
-                // если ехать больше чем можно тиков, то не поедем
-                if (getTravelTimeToPassenger(e, p) > p.getTimeToAway()) { continue; }
-                // если к нам идет пассажир то ждем
-                if (e.getId() == p.getElevator()) {continue;}
-                 // если на этом этаже, есть место, и полно народу, то приглашаем
-                if (p.getState() == 1 && e.getPassengers().size() < 20 && e.getFloor() == p.getFloor()) {
-                    elevatorInfo.get(e.getId()).add(p.getDestFloor());
-                    p.setElevator(e);
-                    continue;
-                }
-                // если стоим просто так, то едем
-                Passenger passenger = findNearestPassenger(myPassengers, e);
-                if ( passenger != null) {
-                    e.goToFloor(passenger.getFloor());
-                    direction.put(e.getId(), p.getFloor() > e.getFloor()? 1: -1);
-                } else {
-
+        try {
+            // первый вызов!!! Инициализируем нашу мапу
+            if (elevatorInfo == null ) {
+                elevatorInfo = new HashMap<>();
+                direction = new HashMap<>();
+                for (Elevator e : myElevators) {
+                    elevatorInfo.putIfAbsent(e.getId(), new TreeSet<>());
+                    direction.put(e.getId(), 0);    // ожидаем
                 }
             }
 
+
+            Collections.sort(myElevators,(e1, e2)->e1.getId()-e2.getId() );
+
+            myElevators.forEach(el-> System.out.print(el.getState() + " "));
+            System.out.println();
+            for (Elevator e: myElevators) {
+                if (e.getState() != 3) {continue;}
+
+                for (Passenger p : myPassengers) {
+                    // пропустим все, что нам не по пути
+                    int d = p.getDestFloor() > p.getFloor()? 1: -1;
+                    // разные напрвления
+                    if (d == 1 && direction.get(e.getId()) == -1) { continue; }
+                    if (d == -1 && direction.get(e.getId()) == 1) { continue; }
+                    //направления одинаковые, но уже проскочили
+                    if (d == 1 && direction.get(e.getId()) == 1 && e.getFloor() > p.getFloor()) {continue;}
+                    if (d == -1 && direction.get(e.getId()) == 1 && e.getFloor() < p.getFloor()) {continue;}
+                    // если ехать больше чем можно тиков, то не поедем
+                    if (getTravelTimeToPassenger(e, p) > p.getTimeToAway()) { continue; }
+                    // если к нам идет пассажир то ждем
+                    if (e.getId() == p.getElevator()) {continue;}
+                    // если на этом этаже, есть место, и полно народу, то приглашаем
+                    if (p.getState() == 1 && (e.getPassengers().size() + myPassengers.stream().filter(t -> t.getElevator() == e.getId()).count() < 20) && e.getFloor() == p.getFloor()) {
+                        elevatorInfo.get(e.getId()).add(p.getDestFloor());
+                        p.setElevator(e);
+                        continue;
+                    }
+                    // если стоим просто так, то едем
+                    Passenger passenger = findNearestPassenger(myPassengers, e);
+                    if ( passenger != null) {
+                        e.goToFloor(passenger.getFloor());
+                        direction.put(e.getId(), p.getFloor() > e.getFloor()? 1: -1);
+                    } else {
+
+                    }
+                }
+
+            }
+        } catch (Throwable throwable) {
+            System.out.println(throwable);
         }
+
+
     }
 
     private Passenger findNearestPassenger(List<Passenger> passengers, Elevator elevator) {
