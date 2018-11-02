@@ -1,4 +1,4 @@
-package core.elevator;
+package core;
 
 import java.util.HashMap;
 import java.util.Map;

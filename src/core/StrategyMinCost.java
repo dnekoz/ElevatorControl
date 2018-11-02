@@ -2,7 +2,6 @@ package core;
 
 import core.API.Elevator;
 import core.API.Passenger;
-import core.elevator.ElevatorExpensesAnalyserBean;
 
 import java.util.*;
 import java.util.stream.Collectors;

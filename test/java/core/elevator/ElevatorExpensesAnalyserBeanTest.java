@@ -1,9 +1,8 @@
 package core.elevator;
 
+import core.*;
 import core.API.Elevator;
 import core.API.Passenger;
-import core.Constants;
-import core.ElevatorState;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

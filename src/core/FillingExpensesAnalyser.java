@@ -1,4 +1,4 @@
-package core.elevator;
+package core;
 
 import core.API.Passenger;
 

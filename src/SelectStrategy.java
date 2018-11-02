@@ -1,5 +1,5 @@
 import core.ModifiedClient;
-import core.Strategy;
+import core.StrategyDefault;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
@@ -10,14 +10,14 @@ public class SelectStrategy {
     public static void main(String args[]) throws IOException, ParseException {
 
         Map<String, String> argsMap = makeMap(args);
-        Class strategyClass = Strategy.class;
+        Class strategyClass = StrategyDefault.class;
 
         if (argsMap.containsKey("strategy")){
             String strategyName = argsMap.get("strategy");
             try {
                 strategyClass =  Class.forName(strategyName);
             } catch (ClassNotFoundException e) {
-                strategyClass = Strategy.class;
+                strategyClass = StrategyDefault.class;
             }
         }
 

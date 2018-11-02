@@ -1,16 +1,13 @@
-package core.elevator;
+package core;
 
 import core.API.Elevator;
 import core.API.Passenger;
-import core.ElevatorExpensesAnalyser;
-import core.ElevatorState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static core.ElevatorState.*;
 
