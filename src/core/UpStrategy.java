@@ -15,12 +15,12 @@ public class UpStrategy extends BaseStrategy {
     private int tick = 0;
     private static final Map<Integer, TreeSet<Integer>> channeling = new HashMap<>();
     private PlayerType playerType;
-    private final BaseStrategy strategy = new Strategy();
+    private final BaseStrategy strategy = new StrategyMinCost();
     private static final Set<Elevator> freeElevators = new HashSet<>();
 
     public void onTick(List<Passenger> myPassengers, List<Elevator> myElevators, List<Passenger> enemyPassengers, List<Elevator> enemyElevators) {
 
-        if (tick > 2100){
+        if (tick > 2500) {
             strategy.onTick(myPassengers, myElevators, enemyPassengers, enemyElevators);
             return;
         }
@@ -71,7 +71,7 @@ public class UpStrategy extends BaseStrategy {
                     // Если высадил всех на этаже, продолжить
                 } else if (elevatorState == FILLING) {
                     List<Passenger> exitingInElevator = myPassengers.stream()
-                            .filter(passenger -> passenger.getElevator()!= null
+                            .filter(passenger -> passenger.getElevator() != null
                                     && passenger.getElevator().equals(e.getId()))
                             .filter(passenger -> passenger.getFloor().equals(e.getFloor())
                                     && !passenger.getState().equals(EXITING.getInt())
@@ -91,7 +91,7 @@ public class UpStrategy extends BaseStrategy {
                                     .filter(passenger -> passenger.getState().equals(WAITING_FOR_ELEVATOR.getInt())
                                             || passenger.getState().equals(RETURNING.getInt()))
                                     .collect(Collectors.toList());
-                            if (freePassangers.size() > 0 && freeElevators.size() > 0 ) {
+                            if (freePassangers.size() > 0 && freeElevators.size() > 0) {
                                 //Получаем команды от другой стратегии по свободным лифтам и пассажирам
                                 strategy.onTick(freePassangers, new ArrayList<>(freeElevators), enemyPassengers, enemyElevators);
 
@@ -103,14 +103,14 @@ public class UpStrategy extends BaseStrategy {
                     }
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             System.err.println(e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private void updatePassangersCommand(List<Passenger> myPassangers, List<Passenger> freePassangers){
-        for (Passenger passenger: freePassangers){
+    private void updatePassangersCommand(List<Passenger> myPassangers, List<Passenger> freePassangers) {
+        for (Passenger passenger : freePassangers) {
 
             Integer passId = passenger.getId();
             Passenger myPassanger = getPassangerById(myPassangers, passId);
@@ -122,7 +122,7 @@ public class UpStrategy extends BaseStrategy {
     }
 
     private void updateElevatorCommand(List<Elevator> myElevators) {
-        for (Elevator elevator: freeElevators){
+        for (Elevator elevator : freeElevators) {
 
             Integer elId = elevator.getId();
             Elevator myElevator = getElevatorById(myElevators, elId);
@@ -133,8 +133,8 @@ public class UpStrategy extends BaseStrategy {
         }
     }
 
-    private Integer getNextFloor(Elevator elevator){
-        for (Integer floor: channeling.get(elevator.getId())) {
+    private Integer getNextFloor(Elevator elevator) {
+        for (Integer floor : channeling.get(elevator.getId())) {
             if (floor > elevator.getFloor())
                 return floor;
         }

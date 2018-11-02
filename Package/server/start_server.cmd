@@ -1,1 +1,2 @@
-c:\Sdk\Python27\python.exe run.py
+SET TICKS_COUNT=7200
+python run.py
